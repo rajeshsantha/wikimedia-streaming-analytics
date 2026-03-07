@@ -1,0 +1,92 @@
+---
+# =============================================================================
+# Kafka 3.9.0 in KRaft mode — no Zookeeper required.
+#
+# KRaft (Kafka Raft Metadata mode) was introduced in Kafka 2.8 and became
+# production-ready in Kafka 3.3.  Zookeeper support was removed in Kafka 4.0
+# and is deprecated/removed in 3.9 for new clusters.  confluentinc/cp-kafka
+# 7.9.0 ships Kafka 3.9.x under the hood.
+#
+# Usage:
+#   cd docker/
+#   docker compose up -d
+#   docker compose down          # stop only
+#   docker compose down -v       # stop + delete data volume
+# =============================================================================
+version: "3.9"
+
+services:
+  kafka:
+    image: confluentinc/cp-kafka:7.9.0
+    container_name: kafka
+    hostname: kafka
+    ports:
+      # 9092 → exposed to the host so the Scala producer / spark-submit can
+      #        reach Kafka via localhost:9092
+      - "9092:9092"
+    environment:
+      # -----------------------------------------------------------------------
+      # KRaft identity
+      # -----------------------------------------------------------------------
+      # A single node acts as both broker and controller (combined mode).
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_NODE_ID: 1
+
+      # Unique cluster ID — generated once with `kafka-storage random-uuid`.
+      # Must be the same value used in KAFKA_KRAFT_CLUSTER_ID below.
+      KAFKA_CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+      KAFKA_KRAFT_CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+
+      # The controller quorum — only this node for a single-node dev cluster.
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+
+      # -----------------------------------------------------------------------
+      # Listeners
+      # -----------------------------------------------------------------------
+      # PLAINTEXT_HOST → used by clients on the Docker host (localhost:9092)
+      # PLAINTEXT       → used by clients inside the Docker network (port 29092)
+      # CONTROLLER      → internal KRaft controller traffic (port 9093)
+      KAFKA_LISTENERS: "PLAINTEXT_HOST://0.0.0.0:9092,PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT_HOST://localhost:9092,PLAINTEXT://kafka:29092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+
+      # -----------------------------------------------------------------------
+      # Broker settings
+      # -----------------------------------------------------------------------
+      # Allow topics to be created automatically by producers / Spark.
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+      # Single-node dev cluster — no replication.
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      # Keep log segments for 1 day in dev to avoid filling the disk.
+      KAFKA_LOG_RETENTION_HOURS: 24
+
+      # Reduce noisy INFO logs from Kafka itself.
+      KAFKA_LOG4J_LOGGERS: "kafka=WARN,org.apache.kafka=WARN"
+
+    volumes:
+      # Named volume so Kafka's data survives container restarts.
+      - kafka-data:/var/lib/kafka/data
+
+    healthcheck:
+      # The broker is healthy once it can list topics (even if there are none).
+      test:
+        - "CMD"
+        - "kafka-topics"
+        - "--bootstrap-server"
+        - "localhost:9092"
+        - "--list"
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  kafka-data:
+    driver: local
