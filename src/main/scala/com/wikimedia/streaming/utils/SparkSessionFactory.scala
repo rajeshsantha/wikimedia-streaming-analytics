@@ -62,14 +62,14 @@ object SparkSessionFactory {
   def create(): SparkSession = {
     val appName         = config.getString("spark.app-name")
     val master          = config.getString("spark.master")
-    val shufflePartions = config.getInt("spark.shuffle-partitions")
+    val shufflePartitions = config.getInt("spark.shuffle-partitions")
     val logLevel        = config.getString("spark.log-level")
 
     val spark = SparkSession.builder()
       .appName(appName)
       .master(master)
       // Reduce shuffles to a sensible number for local development
-      .config("spark.sql.shuffle.partitions", shufflePartions.toString)
+      .config("spark.sql.shuffle.partitions", shufflePartitions.toString)
       // Enable Delta SQL extensions (MERGE, OPTIMIZE, VACUUM, etc.)
       .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
       // Replace default catalog with Delta-aware catalog
