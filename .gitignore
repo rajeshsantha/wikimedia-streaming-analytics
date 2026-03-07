@@ -1,0 +1,17 @@
+target/
+.idea/
+*.iml
+.vscode/
+.bsp/
+delta/trending_articles/
+delta/active_editors/
+delta/edit_spikes/
+checkpoint/trending_articles/
+checkpoint/active_editors/
+checkpoint/edit_spikes/
+docker/kafka-data/
+.DS_Store
+Thumbs.db
+*.log
+derby.log
+metastore_db/
