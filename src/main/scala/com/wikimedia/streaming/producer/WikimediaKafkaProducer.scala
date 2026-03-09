@@ -72,6 +72,8 @@ object WikimediaKafkaProducer {
 
     val request = new Request.Builder()
       .url(KafkaConfig.wikimediaStreamUrl)
+
+      .header("User-Agent", "WikimediaStreamingAnalytics/1.0 (https://github.com/rajeshsantha/wikimedia-streaming-analytics)")
       .build()
 
     val listener = new EventSourceListener {

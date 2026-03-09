@@ -186,8 +186,8 @@ object EditSpikeDetector {
       )
       state.update(updatedState)
 
-      // Set a 30-minute event-time timeout from the latest window end
-      state.setTimeoutTimestamp(latest.window_end.getTime + 30L * 60L * 1000L)
+      // Set a 30-minute processing-time timeout from now
+      state.setTimeoutDuration("30 minutes")
 
       SpikeEvent(
         article_title      = title,
@@ -244,21 +244,31 @@ object EditSpikeDetector {
     // -------------------------------------------------------------------------
     val spikeEvents = windowedCounts
       .groupByKey(_.title)
-      .mapGroupsWithState(GroupStateTimeout.EventTimeTimeout)(detectSpike)
+      .mapGroupsWithState(GroupStateTimeout.ProcessingTimeTimeout)(detectSpike)
 
     // -------------------------------------------------------------------------
-    // Write to Delta Lake
+    // Write to Delta Lake via foreachBatch
     //
     // outputMode("update"): emit a row for each article whose state was updated
     // in this micro-batch.  This includes both spikes and non-spike updates,
     // giving consumers a full audit trail.
+    //
+    // Delta Lake 4.1+ does not support "update" output mode as a direct sink,
+    // so we use foreachBatch to write each micro-batch as an append to Delta.
     // -------------------------------------------------------------------------
     spikeEvents.toDF()
       .writeStream
-      .format("delta")
       .outputMode("update")
+      .foreachBatch { (batchDF: org.apache.spark.sql.DataFrame, batchId: Long) =>
+        if (!batchDF.isEmpty) {
+          batchDF.write
+            .format("delta")
+            .mode("append")
+            .save(KafkaConfig.editSpikesTablePath)
+        }
+      }
       .option("checkpointLocation", KafkaConfig.editSpikesCheckpoint)
       .queryName("edit_spike_detector")
-      .start(KafkaConfig.editSpikesTablePath)
+      .start()
   }
 }

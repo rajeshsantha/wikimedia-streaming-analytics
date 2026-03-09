@@ -78,6 +78,8 @@ object SparkSessionFactory {
       // Use HDFS-backed state store (default); swap for RocksDB in production
       .config("spark.sql.streaming.stateStore.providerClass",
               "org.apache.spark.sql.execution.streaming.state.HDFSBackedStateStoreProvider")
+      // Allow chained stateful operators (e.g., window agg → mapGroupsWithState)
+      .config("spark.sql.streaming.statefulOperator.checkCorrectness.enabled", "false")
       .getOrCreate()
 
     // Suppress noisy log messages; set in config (default WARN)

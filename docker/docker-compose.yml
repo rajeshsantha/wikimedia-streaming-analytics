@@ -33,7 +33,8 @@ services:
       KAFKA_NODE_ID: 1
 
       # Unique cluster ID — generated once with `kafka-storage random-uuid`.
-      # Must be the same value used in KAFKA_KRAFT_CLUSTER_ID below.
+      # cp-kafka 7.9.0 requires CLUSTER_ID (not KAFKA_CLUSTER_ID).
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
       KAFKA_CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
       KAFKA_KRAFT_CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
 
@@ -46,7 +47,7 @@ services:
       # PLAINTEXT_HOST → used by clients on the Docker host (localhost:9092)
       # PLAINTEXT       → used by clients inside the Docker network (port 29092)
       # CONTROLLER      → internal KRaft controller traffic (port 9093)
-      KAFKA_LISTENERS: "PLAINTEXT_HOST://0.0.0.0:9092,PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_LISTENERS: "PLAINTEXT_HOST://0.0.0.0:9092,PLAINTEXT://0.0.0.0:29092,CONTROLLER://kafka:9093"
       KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT_HOST://localhost:9092,PLAINTEXT://kafka:29092"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"

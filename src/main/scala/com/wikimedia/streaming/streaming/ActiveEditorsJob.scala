@@ -183,7 +183,7 @@ object ActiveEditorsJob {
     val editorEvents: org.apache.spark.sql.Dataset[EditorEvent] = watermarkedEvents
       .select(
         col("user"),
-        col("event_time").cast(TimestampType).alias("event_time")
+        col("event_time")
       )
       .as[EditorEvent]
 
@@ -198,19 +198,29 @@ object ActiveEditorsJob {
       .mapGroupsWithState(GroupStateTimeout.EventTimeTimeout)(updateEditorState)
 
     // -------------------------------------------------------------------------
-    // Write to Delta Lake
+    // Write to Delta Lake via foreachBatch
     //
     // outputMode("update"): emit a row for each group whose state changed in
     // this micro-batch (both active and newly-expired editors).
     // "complete" would re-emit ALL groups every batch — far too expensive.
     // "append" is not allowed with mapGroupsWithState.
+    //
+    // Delta Lake 4.1+ does not support "update" output mode as a direct sink,
+    // so we use foreachBatch to write each micro-batch as an append to Delta.
     // -------------------------------------------------------------------------
     activeEditors.toDF()
       .writeStream
-      .format("delta")
       .outputMode("update")
+      .foreachBatch { (batchDF: org.apache.spark.sql.DataFrame, batchId: Long) =>
+        if (!batchDF.isEmpty) {
+          batchDF.write
+            .format("delta")
+            .mode("append")
+            .save(KafkaConfig.activeEditorsTablePath)
+        }
+      }
       .option("checkpointLocation", KafkaConfig.activeEditorsCheckpoint)
       .queryName("active_editors")
-      .start(KafkaConfig.activeEditorsTablePath)
+      .start()
   }
 }

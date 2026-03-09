@@ -21,11 +21,11 @@
     <scala.version>2.13.14</scala.version>
     <scala.binary.version>2.13</scala.binary.version>
 
-    <!-- Apache Spark 4.0.0 -->
-    <spark.version>4.0.0</spark.version>
+    <!-- Apache Spark 4.1.1 -->
+    <spark.version>4.1.1</spark.version>
 
-    <!-- Delta Lake 4.0.0 - compatible with Spark 4.0+ -->
-    <delta.version>4.0.0</delta.version>
+    <!-- Delta Lake 4.1.0 - compatible with Spark 4.1+ -->
+    <delta.version>4.1.0</delta.version>
 
     <!-- Kafka 3.9.0 - runs in KRaft mode (no Zookeeper) -->
     <kafka.version>3.9.0</kafka.version>
