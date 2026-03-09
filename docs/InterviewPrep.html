@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Data Engineering Interview Prep</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #09090f;
+    --surface: #0f0f1a;
+    --surface2: #141425;
+    --border: #1e1e35;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --accent3: #ff6b6b;
+    --accent4: #ffd166;
+    --text: #e8e8f0;
+    --muted: #7878a0;
+    --q-bg: #0d0d1f;
+    --a-bg: #0a1a14;
+    --tag-bg: #1a1a30;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* === ANIMATED GRID BACKGROUND === */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(108,99,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(108,99,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* === HEADER === */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 60px 40px 50px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(108,99,255,0.06) 0%, transparent 100%);
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '</>';
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 120px;
+    font-weight: 700;
+    color: rgba(108,99,255,0.06);
+    letter-spacing: -6px;
+    pointer-events: none;
+  }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(108,99,255,0.12);
+    border: 1px solid rgba(108,99,255,0.3);
+    border-radius: 100px;
+    padding: 5px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #9b94ff;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .header-badge::before { content: '◉'; font-size: 8px; color: var(--accent2); }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 58px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, #fff 0%, #a8a0ff 50%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 14px;
+  }
+
+  .header-sub {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .header-sub span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .stat-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+
+  /* === LAYOUT === */
+  .layout {
+    display: flex;
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* === SIDEBAR === */
+  nav {
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 30px 20px;
+    border-right: 1px solid var(--border);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  nav::-webkit-scrollbar { width: 4px; }
+  nav::-webkit-scrollbar-track { background: transparent; }
+  nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .nav-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    padding: 0 10px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    cursor: pointer;
+    margin-bottom: 2px;
+  }
+
+  .nav-item:hover, .nav-item.active {
+    background: rgba(108,99,255,0.1);
+    color: #a8a0ff;
+  }
+
+  .nav-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  .nav-count {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    background: var(--tag-bg);
+    border-radius: 4px;
+    padding: 1px 6px;
+  }
+
+  /* === MAIN === */
+  main {
+    flex: 1;
+    padding: 40px;
+    min-width: 0;
+  }
+
+  /* === SECTION === */
+  .section {
+    margin-bottom: 64px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .section-meta {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+  }
+
+  /* === QA CARD === */
+  .qa-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+
+  .qa-card:hover {
+    border-color: rgba(108,99,255,0.3);
+    box-shadow: 0 4px 24px rgba(108,99,255,0.08);
+  }
+
+  .qa-card.open {
+    border-color: rgba(108,99,255,0.4);
+    box-shadow: 0 8px 32px rgba(108,99,255,0.1);
+  }
+
+  .qa-card.followup {
+    border-left: 3px solid var(--accent2);
+  }
+
+  .qa-card.followup .q-label { color: var(--accent2); }
+
+  .q-row {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 18px 20px;
+  }
+
+  .q-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    background: rgba(108,99,255,0.1);
+    border: 1px solid rgba(108,99,255,0.2);
+    border-radius: 5px;
+    padding: 3px 8px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .q-text {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .q-chevron {
+    color: var(--muted);
+    font-size: 12px;
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .qa-card.open .q-chevron { transform: rotate(180deg); color: var(--accent); }
+
+  .a-panel {
+    display: none;
+    padding: 0 20px 20px 52px;
+    animation: slideDown 0.2s ease;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .qa-card.open .a-panel { display: block; }
+
+  .a-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .a-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  .a-text {
+    color: #c0c0d8;
+    font-size: 14px;
+    line-height: 1.75;
+  }
+
+  .a-text p { margin-bottom: 10px; }
+  .a-text p:last-child { margin-bottom: 0; }
+
+  /* === INLINE CODE === */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: rgba(108,99,255,0.12);
+    border: 1px solid rgba(108,99,255,0.2);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: #a8a0ff;
+  }
+
+  /* === CODE BLOCK === */
+  pre {
+    background: #07070f;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    margin: 12px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #b0b0cc;
+    line-height: 1.6;
+  }
+
+  /* === TAGS === */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    color: var(--muted);
+  }
+
+  /* === TIP BOX === */
+  .tip-box {
+    background: rgba(0, 212, 170, 0.05);
+    border: 1px solid rgba(0, 212, 170, 0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #80e8cc;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .tip-box::before { content: '💡'; flex-shrink: 0; }
+
+  /* === WARN BOX === */
+  .warn-box {
+    background: rgba(255, 107, 107, 0.05);
+    border: 1px solid rgba(255, 107, 107, 0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #ff9999;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .warn-box::before { content: '⚠️'; flex-shrink: 0; }
+
+  /* === COMPARISON TABLE === */
+  .cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 13px;
+  }
+
+  .cmp-table th {
+    background: var(--surface2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 9px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cmp-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    color: #c0c0d8;
+    vertical-align: top;
+  }
+
+  .cmp-table tr:last-child td { border-bottom: none; }
+  .cmp-table tr:hover td { background: rgba(108,99,255,0.04); }
+
+  /* === PIPELINE DIAGRAM === */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    margin: 14px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+  }
+
+  .pipe-node {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    color: #a0a0cc;
+    white-space: nowrap;
+  }
+
+  .pipe-arrow {
+    color: var(--accent);
+    padding: 0 6px;
+    font-size: 14px;
+  }
+
+  /* === DIFFICULTY BADGE === */
+  .diff {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    border-radius: 3px;
+    padding: 2px 6px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  .diff-med { background: rgba(255,209,102,0.12); color: var(--accent4); border: 1px solid rgba(255,209,102,0.2); }
+  .diff-hard { background: rgba(255,107,107,0.12); color: var(--accent3); border: 1px solid rgba(255,107,107,0.2); }
+  .diff-easy { background: rgba(0,212,170,0.1); color: var(--accent2); border: 1px solid rgba(0,212,170,0.2); }
+
+  /* === FOOTER === */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 40px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+
+  /* === SEARCH === */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 28px;
+    transition: border-color 0.2s;
+  }
+
+  .search-bar:focus-within { border-color: rgba(108,99,255,0.4); }
+  .search-bar input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .search-bar input::placeholder { color: var(--muted); }
+  .search-icon { color: var(--muted); font-size: 14px; }
+
+  /* === EXPAND ALL === */
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 7px;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+
+  .btn:hover { border-color: rgba(108,99,255,0.4); color: #a8a0ff; background: rgba(108,99,255,0.07); }
+
+  .results-count {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* hidden for search */
+  .qa-card.hidden { display: none; }
+
+  @media (max-width: 900px) {
+    nav { display: none; }
+    main { padding: 20px; }
+    header { padding: 40px 20px 30px; }
+    header::after { display: none; }
+    .pipeline { flex-direction: column; align-items: flex-start; }
+    .pipe-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">Data Engineering · Interview Prep</div>
+  <h1>Stream Processing<br>Deep Dive</h1>
+  <div class="header-sub">
+    <span><span class="stat-dot" style="background:#6c63ff"></span> 8 Topic Areas</span>
+    <span><span class="stat-dot" style="background:#00d4aa"></span> 50+ Questions</span>
+    <span><span class="stat-dot" style="background:#ffd166"></span> Kafka · Spark · Delta Lake</span>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="nav-label">Sections</div>
+  <a class="nav-item active" onclick="scrollTo('arch')">
+    <span class="nav-icon" style="background:rgba(108,99,255,0.1);color:#9b94ff">🏗</span>
+    System Design
+    <span class="nav-count">6</span>
+  </a>
+  <a class="nav-item" onclick="scrollTo('sse')">
+    <span class="nav-icon" style="background:rgba(0,212,170,0.1);color:#00d4aa">📡</span>
+    SSE & Producer
+    <span class="nav-count">6</span>
+  </a>
+  <a class="nav-item" onclick="scrollTo('kafka')">
+    <span class="nav-icon" style="background:rgba(255,209,102,0.1);color:#ffd166">⚡</span>
+    Kafka
+    <span class="nav-count">6</span>
+  </a>
+  <a class="nav-item" onclick="scrollTo('spark')">
+    <span class="nav-icon" style="background:rgba(255,107,107,0.1);color:#ff8888">🔥</span>
+    Spark Streaming
+    <span class="nav-count">7</span>
+  </a>
+  <a class="nav-item" onclick="scrollTo('stateful')">
+    <span class="nav-icon" style="background:rgba(108,99,255,0.1);color:#9b94ff">🗄</span>
+    Stateful Processing
+    <span class="nav-count">5</span>
+  </a>
+  <a class="nav-item" onclick="scrollTo('delta')">
+    <span class="nav-icon" style="background:rgba(0,212,170,0.1);color:#00d4aa">💾</span>
+    Delta Lake
+    <span class="nav-count">6</span>
+  </a>
+  <a class="nav-item" onclick="scrollTo('exactlyonce')">
+    <span class="nav-icon" style="background:rgba(255,209,102,0.1);color:#ffd166">✅</span>
+    Exactly-Once
+    <span class="nav-count">4</span>
+  </a>
+  <a class="nav-item" onclick="scrollTo('ops')">
+    <span class="nav-icon" style="background:rgba(255,107,107,0.1);color:#ff8888">🔧</span>
+    Ops & Code
+    <span class="nav-count">8</span>
+  </a>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main>
+
+  <!-- Search & Toolbar -->
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search questions..." oninput="filterQA()"/>
+  </div>
+  <div class="toolbar">
+    <button class="btn" onclick="expandAll()">▼ Expand All</button>
+    <button class="btn" onclick="collapseAll()">▲ Collapse All</button>
+    <button class="btn" onclick="filterFollowup()">🔗 Follow-ups Only</button>
+    <button class="btn" onclick="clearFilter()">✕ Clear Filter</button>
+    <span class="results-count" id="resultsCount"></span>
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 1 ═══════════════════════════════ -->
+  <div class="section" id="arch">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(108,99,255,0.12);font-size:20px">🏗️</div>
+      <div>
+        <div class="section-title" style="color:#a8a0ff">System Design & Architecture</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">End-to-end pipeline design, failure modes, scaling</div>
+      </div>
+      <span class="section-meta">6 questions</span>
+    </div>
+
+    <div class="qa-card open" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">Walk me through the end-to-end data flow in this pipeline.<span class="diff diff-easy">CORE</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <div class="pipeline">
+            <span class="pipe-node">SSE Feed</span><span class="pipe-arrow">→</span>
+            <span class="pipe-node">OkHttp Client</span><span class="pipe-arrow">→</span>
+            <span class="pipe-node">Kafka Producer</span><span class="pipe-arrow">→</span>
+            <span class="pipe-node">wikimedia-events</span><span class="pipe-arrow">→</span>
+            <span class="pipe-node">Spark Streaming</span><span class="pipe-arrow">→</span>
+            <span class="pipe-node">3 Queries</span><span class="pipe-arrow">→</span>
+            <span class="pipe-node">Delta Lake</span>
+          </div>
+          <p><strong>Stage 1 — Ingestion:</strong> A long-lived HTTP connection to the Wikimedia SSE endpoint streams newline-delimited <code>text/event-stream</code> events. OkHttp's SSE client parses these and forwards raw JSON payloads to a Kafka producer.</p>
+          <p><strong>Stage 2 — Buffering:</strong> The producer writes to the <code>wikimedia-events</code> Kafka topic with <code>acks=all</code> and idempotence enabled. Kafka decouples the live SSE stream from downstream consumers and provides a durable, replayable log.</p>
+          <p><strong>Stage 3 — Processing:</strong> Spark Structured Streaming reads the Kafka topic, deserializes JSON into a typed <code>Dataset</code> using a defined <code>StructType</code> schema, then fans out into three parallel streaming queries: sliding trending windows, stateful active-editor tracking via <code>mapGroupsWithState</code>, and a spike detector.</p>
+          <p><strong>Stage 4 — Storage:</strong> Each query writes its output to a separate Delta Lake table. Delta's transaction log ensures atomic, exactly-once micro-batch commits. Checkpoints track Kafka offsets and Spark state so the pipeline can resume after any crash.</p>
+          <div class="tip-box">In interviews, draw this as a whiteboard diagram and walk left-to-right. Highlight where exactly-once guarantees are established at each boundary.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">Why use Kafka between the SSE source and Spark?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>Directly connecting Spark to the SSE feed creates tight coupling — a Spark restart or slow batch would either drop events or stall the HTTP connection. Kafka solves this with five key properties:</p>
+          <table class="cmp-table">
+            <tr><th>Property</th><th>Why it matters here</th></tr>
+            <tr><td><strong>Durable replay</strong></td><td>Kafka retains events for a configurable retention window; Spark can re-read from its last committed offset after any failure without data loss.</td></tr>
+            <tr><td><strong>Backpressure isolation</strong></td><td>If Spark is slow (e.g., a large state checkpoint), it reads at its own pace while Kafka absorbs the incoming burst without backpressuring the SSE server.</td></tr>
+            <tr><td><strong>Fan-out</strong></td><td>Multiple independent consumer groups (analytics, archiving, alerting) can each read the same topic independently — no re-ingestion needed.</td></tr>
+            <tr><td><strong>Offset tracking</strong></td><td>Combined with Spark checkpoints, Kafka offsets give you a precise restart point for exactly-once processing semantics.</td></tr>
+            <tr><td><strong>Operational decoupling</strong></td><td>The SSE producer and Spark consumers can be deployed, restarted, or scaled independently.</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">What failure modes exist at each stage, and how do you recover?<span class="diff diff-hard">HARD</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <table class="cmp-table">
+            <tr><th>Stage</th><th>Failure Mode</th><th>Recovery Strategy</th></tr>
+            <tr><td><strong>SSE Client</strong></td><td>Network drop, server restart</td><td>OkHttp auto-reconnects; sends <code>Last-Event-ID</code> header so the server replays from the last received event ID — limiting data loss to the reconnect window.</td></tr>
+            <tr><td><strong>Kafka Producer</strong></td><td>Process crash before flush, network partition</td><td>Kafka retains the topic log. On restart, the producer resumes. Idempotent producer prevents duplicates from retried sends.</td></tr>
+            <tr><td><strong>Kafka Broker</strong></td><td>Broker crash or partition leader failover</td><td>With <code>replication.factor ≥ 3</code> and <code>min.insync.replicas=2</code>, ISR failover is automatic. Restart the broker; it catches up from the log.</td></tr>
+            <tr><td><strong>Spark Driver</strong></td><td>OOM, hardware fault</td><td>Restart driver; it reads checkpoint to recover Kafka offsets and in-flight state. Delta batch IDs prevent re-writing already committed micro-batches.</td></tr>
+            <tr><td><strong>Spark Executor</strong></td><td>Executor lost mid-task</td><td>Spark retries the task on another executor. State is recovered from RocksDB state store replicated to checkpoint storage.</td></tr>
+            <tr><td><strong>Delta Write</strong></td><td>Crash mid-commit</td><td>Delta's transaction is atomic; partial writes are rolled back. On restart, Spark reprocesses the batch and Delta ignores duplicate batch IDs.</td></tr>
+          </table>
+          <div class="warn-box">Always test failure recovery in staging. A checkpoint directory mismatch (e.g., schema change without clearing checkpoint) is a common cause of non-obvious restart failures.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">How would you scale this from local to production?<span class="diff diff-hard">HARD</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>Scaling touches every layer of the stack:</p>
+          <p><strong>Kafka:</strong> Move from a single broker to a multi-broker cluster with <code>replication.factor=3</code> and <code>min.insync.replicas=2</code>. Right-size partition count to match peak throughput ÷ per-partition throughput (~10–50 MB/s). Enable SASL/SSL for auth and encryption.</p>
+          <p><strong>Spark:</strong> Deploy on Kubernetes (Spark Operator) or YARN. Enable dynamic executor allocation so the cluster scales up for burst traffic and scales down during quiet periods. Tune <code>spark.sql.shuffle.partitions</code> to 2–3× the cluster cores.</p>
+          <p><strong>State Store:</strong> Replace the default in-memory store with RocksDB (<code>spark.sql.streaming.stateStore.providerClass=RocksDBStateStoreProvider</code>) to avoid driver OOM on large key cardinality.</p>
+          <p><strong>Delta Lake:</strong> Use S3/GCS/ADLS as the backing store instead of local disk. Enable auto-optimize and auto-compaction to prevent small-file proliferation.</p>
+          <p><strong>Observability:</strong> Expose Spark metrics to Prometheus via the JMX exporter and visualize with Grafana. Alert on Kafka consumer lag, batch duration P99, and state store size.</p>
+          <p><strong>CI/CD:</strong> Build and publish Spark application JARs via GitHub Actions. Use ArgoCD or Flux for Kubernetes deployment.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Follow-up -->
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">How would you handle a schema change in the Wikimedia feed without downtime?<span class="diff diff-hard">HARD</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p>Schema evolution without downtime requires coordination across the producer, Spark, and Delta layers:</p>
+          <p><strong>1. Schema Registry:</strong> In production, register all schemas in Confluent Schema Registry with <code>BACKWARD</code> or <code>FULL</code> compatibility mode. Producers validate before publishing; consumers can read older messages even after a schema bump.</p>
+          <p><strong>2. Spark Schema Handling:</strong> Use <code>from_json(col, schema, Map("mode" → "PERMISSIVE"))</code> so new unknown fields are silently dropped and missing old fields produce nulls — the pipeline doesn't break.</p>
+          <p><strong>3. Delta Evolution:</strong> Set <code>.option("mergeSchema", "true")</code> on the Delta write. Delta will add new columns to the table schema automatically. Downstream queries using <code>SELECT *</code> will immediately see new columns; typed queries remain unchanged.</p>
+          <p><strong>4. Blue/Green Rollout:</strong> If the schema change is breaking (field rename, type change), deploy a second pipeline reading from a new Kafka topic, run both in parallel until confidence is established, then cut over downstream consumers.</p>
+          <div class="tip-box">The safest pattern is additive-only schema changes. Treat field removal or type changes as breaking changes requiring a versioned topic.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">If you had to add a second analytics pipeline consuming the same data, how would you design it?</span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p>The cleanest approach is a separate Kafka consumer group. Each consumer group maintains independent offsets, so the new pipeline reads from the beginning of the retention window without affecting the existing one.</p>
+          <p>In Spark, you'd add a new streaming query on the same parsed DataFrame (or re-read from Kafka with a different <code>groupId</code>). Each query gets its own checkpoint path and output Delta table. Shared transformation logic can be extracted into a library to avoid drift.</p>
+          <p>If the second pipeline needs the exact same parsed/cleaned data, consider writing to an intermediate "canonical" Delta table first, and having all downstream queries read from it — a "medallion architecture" (Bronze → Silver → Gold pattern).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 2 ═══════════════════════════════ -->
+  <div class="section" id="sse">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(0,212,170,0.1);font-size:20px">📡</div>
+      <div>
+        <div class="section-title" style="color:#00d4aa">SSE Ingestion & Producer</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">Server-Sent Events, reconnects, Kafka producer config</div>
+      </div>
+      <span class="section-meta">6 questions</span>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">How does Server-Sent Events differ from WebSockets?<span class="diff diff-easy">EASY</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <table class="cmp-table">
+            <tr><th>Dimension</th><th>SSE</th><th>WebSocket</th></tr>
+            <tr><td><strong>Direction</strong></td><td>Unidirectional — server → client only</td><td>Bidirectional — full-duplex</td></tr>
+            <tr><td><strong>Protocol</strong></td><td>Plain HTTP/1.1 or HTTP/2; <code>text/event-stream</code> content type</td><td>Upgrade to <code>ws://</code> or <code>wss://</code> protocol</td></tr>
+            <tr><td><strong>Reconnect</strong></td><td>Native browser/client auto-reconnect with <code>Last-Event-ID</code> support</td><td>Must implement manually</td></tr>
+            <tr><td><strong>Firewall/Proxy</strong></td><td>Works through HTTP proxies and firewalls transparently</td><td>Some proxies block WebSocket upgrades</td></tr>
+            <tr><td><strong>Data format</strong></td><td>Text only (UTF-8)</td><td>Binary and text</td></tr>
+            <tr><td><strong>Best for</strong></td><td>Push-only feeds: news, live metrics, event logs</td><td>Chat, gaming, collaborative editing</td></tr>
+          </table>
+          <p style="margin-top:12px">For the Wikimedia pipeline, SSE is the correct choice: data flows one way (server to consumer), the protocol is simpler to implement, and HTTP infrastructure handles reconnects natively.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">How does the SSE client handle reconnects and missed events?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>OkHttp's SSE implementation handles reconnects automatically. On a network error or non-200 response, the client waits for a configurable retry delay and re-establishes the connection.</p>
+          <p>To limit data loss, the SSE spec defines the <code>Last-Event-ID</code> mechanism: every SSE event can carry an <code>id:</code> field. The client stores the most recently received ID and includes it as the <code>Last-Event-ID</code> HTTP header on reconnect. If the Wikimedia server supports replay (it does for short windows), it will re-stream events from that ID forward.</p>
+          <p>However, for events missed during longer outages, Kafka retention is the real safety net — the producer wrote those events before the client crashed, so they're replayable from the consumer side.</p>
+          <div class="tip-box">The combination of SSE <code>Last-Event-ID</code> (short gaps) + Kafka retention (long gaps) gives layered durability for the ingestion layer.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">Why use <code>acks=all</code> and <code>enable.idempotence=true</code> together?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>These two settings together give you the strongest durability and exactly-once write guarantee at the producer level:</p>
+          <p><strong><code>acks=all</code>:</strong> The broker only acknowledges a message after <em>all</em> in-sync replicas (ISR) have written it to their local logs. This means even if the leader crashes immediately after acknowledgment, no data is lost — at least one follower has the message and can become the new leader.</p>
+          <p><strong><code>enable.idempotence=true</code>:</strong> The producer assigns each message a Producer ID (PID) and a per-partition sequence number. If a send is retried (e.g., due to a timeout before receiving an ack), the broker detects the duplicate sequence number and silently discards it — so retries never produce duplicate records.</p>
+          <p>Without idempotence, a network timeout could cause the producer to retry a send that actually succeeded, resulting in duplicates in the log.</p>
+          <pre>// Java producer config equivalent
+props.put("acks", "all");
+props.put("enable.idempotence", "true");
+props.put("max.in.flight.requests.per.connection", "5"); // safe with idempotence
+props.put("retries", Integer.MAX_VALUE);</pre>
+          <div class="warn-box">Enabling idempotence automatically sets <code>acks=all</code> and <code>retries=MAX</code> if not explicitly set. Explicit configuration is still recommended for clarity.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">What's the impact of <code>linger.ms</code> and compression on latency and throughput?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p><strong><code>linger.ms</code></strong> controls how long the producer waits before sending a batch. The trade-off is:</p>
+          <p>At <code>linger.ms=0</code> (default), every message is sent immediately — minimum latency, but small batches mean more network round trips and worse compression ratios.</p>
+          <p>At <code>linger.ms=5–20</code>, the producer accumulates messages into larger batches before sending. This dramatically improves throughput (fewer requests), reduces broker CPU, and improves compression. The cost is an added 5–20ms of latency per message — acceptable for analytics pipelines but not for low-latency financial systems.</p>
+          <p><strong>Compression (Snappy/LZ4/Zstd):</strong> Applied per-batch at the producer, decompressed at the consumer. Benefits: 3–5× reduction in network bandwidth and broker disk usage. Costs: marginal CPU overhead on producer and consumer. Snappy favors speed; Zstd favors compression ratio. For Wikimedia's JSON payloads (highly compressible text), Snappy typically gives 60–70% size reduction.</p>
+          <table class="cmp-table">
+            <tr><th>Config</th><th>Latency</th><th>Throughput</th><th>CPU</th></tr>
+            <tr><td>linger=0, no compression</td><td>Lowest</td><td>Lowest</td><td>Lowest</td></tr>
+            <tr><td>linger=10ms, Snappy</td><td>+10ms</td><td>High</td><td>Low</td></tr>
+            <tr><td>linger=10ms, Zstd</td><td>+10ms</td><td>Highest</td><td>Medium</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Follow-up -->
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">What happens if the Kafka producer's buffer fills up — how do you handle back pressure?<span class="diff diff-hard">HARD</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p>The producer's in-memory record accumulator has a fixed size (<code>buffer.memory</code>, default 32 MB). When it fills up — meaning the broker is slow to accept batches — subsequent <code>producer.send()</code> calls block for up to <code>max.block.ms</code> (default 60s). After that timeout, a <code>TimeoutException</code> is thrown.</p>
+          <p>For the Wikimedia ingestion use case, options are:</p>
+          <p><strong>1. Increase buffer + linger:</strong> Raise <code>buffer.memory</code> to accommodate burst traffic. Pair with higher <code>linger.ms</code> to batch more aggressively.</p>
+          <p><strong>2. Async send with callback:</strong> Use non-blocking <code>send(record, callback)</code> and track in-flight count. If the callback queue exceeds a threshold, pause the SSE listener thread and resume after draining.</p>
+          <p><strong>3. Drop vs. block trade-off:</strong> For this pipeline, blocking (and potentially dropping SSE events) is acceptable because Kafka is the durability layer — events not yet produced are truly lost, but events already in Kafka are safe. For mission-critical systems, you'd buffer overflow to local disk.</p>
+          <div class="warn-box">A slow broker causing producer back pressure that blocks the SSE consumer thread will eventually trigger SSE reconnects. Monitor producer request latency (P99) as an early warning signal.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">How would you partition the Kafka topic to balance load while preserving ordering for per-article events?</span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p>Use the article title (or page ID) as the Kafka message key. Kafka's default partitioner hashes the key to a partition, so all edits for a given article land on the same partition in order. This enables Spark to compute per-article aggregations without cross-partition shuffles on the hot path.</p>
+          <p>The trade-off: a very popular article (e.g., a breaking news page) will generate a hot partition with disproportionate load. Mitigations include sticky partitioning for a burst window, or a two-level approach: partition by <code>hash(articleId) % numPartitions</code> but within Spark, re-aggregate with a downstream shuffle keyed on articleId.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 3 ═══════════════════════════════ -->
+  <div class="section" id="kafka">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(255,209,102,0.1);font-size:20px">⚡</div>
+      <div>
+        <div class="section-title" style="color:#ffd166">Kafka Fundamentals</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">Partitions, ordering, exactly-once, KRaft</div>
+      </div>
+      <span class="section-meta">6 questions</span>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">Why choose a topic with multiple partitions, and how does Spark read them?<span class="diff diff-easy">EASY</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>A single Kafka partition is a single ordered log — reads and writes are sequential, bound by one broker's I/O. Multiple partitions allow horizontal scaling of both write throughput (producer parallelism) and read throughput (consumer parallelism).</p>
+          <p>Spark's Kafka source creates one RDD partition (and thus one task) per Kafka partition per micro-batch. With 8 Kafka partitions and 8 executor cores, all partitions are read in parallel — 8× the throughput of a single partition.</p>
+          <p>Partition count should be sized as: <code>max_throughput_MB_s ÷ per_partition_throughput_MB_s</code>. A typical rule of thumb is 10–20 partitions per broker for moderate workloads.</p>
+          <div class="tip-box">You can only increase partitions, never decrease them. Pick a partition count that gives headroom for 12–18 months of growth at the time of topic creation.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">How do you guarantee ordering, and when does ordering break down?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>Kafka guarantees strict ordering <em>within a single partition</em>. Producers append to the tail; consumers read sequentially. This means all messages with the same key (same article) arrive in write order if the producer uses consistent key-based partitioning.</p>
+          <p><strong>Ordering breaks down in these scenarios:</strong></p>
+          <p><strong>1. Multiple partitions, no key:</strong> Round-robin assignment spreads messages across partitions. Consumer read order becomes interleaved and non-deterministic.</p>
+          <p><strong>2. Multiple producers:</strong> If two producer instances write the same key simultaneously, network variability means the "later" message may land before the "earlier" one.</p>
+          <p><strong>3. <code>max.in.flight.requests > 1</code> without idempotence:</strong> Retried batches can overtake in-flight batches, causing reordering. Idempotent producers with sequence numbers prevent this.</p>
+          <p><strong>4. Consumer parallelism:</strong> Even with ordered partitions, a multi-threaded consumer processing messages from the same partition in parallel loses ordering in the processing layer.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">What would you change if you needed exactly-once from producer to sink?<span class="diff diff-hard">HARD</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>End-to-end exactly-once requires guarantees at every stage in the chain:</p>
+          <p><strong>Producer → Kafka:</strong> Enable idempotent producer (<code>enable.idempotence=true</code>) and use transactional APIs (<code>transactional.id</code>) when producing to multiple partitions atomically. This gives exactly-once publish semantics.</p>
+          <p><strong>Kafka → Spark:</strong> Spark's Structured Streaming with Kafka uses offset-based checkpointing. Each micro-batch reads a precise offset range and commits only after the output is written. This gives exactly-once read semantics.</p>
+          <p><strong>Spark → Sink:</strong> Use an idempotent or transactional sink. Delta Lake's transaction log with batch IDs provides exactly-once write semantics — Spark embeds a unique batch ID in every commit, and Delta rejects duplicate batch IDs on restart.</p>
+          <p><strong>Consumer isolation:</strong> Set <code>isolation.level=read_committed</code> on any Kafka consumer that reads from transactionally produced topics, so it only sees committed (non-aborted) transactions.</p>
+          <pre>// Transactional producer init
+props.put("transactional.id", "wikimedia-producer-0");
+producer.initTransactions();
+producer.beginTransaction();
+// ... send messages
+producer.commitTransaction(); // atomic</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">How does KRaft change Kafka ops vs Zookeeper?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>KRaft (Kafka Raft) replaces Zookeeper as Kafka's metadata management system, reaching production readiness in Kafka 3.3 and becoming the only option in Kafka 4.0.</p>
+          <table class="cmp-table">
+            <tr><th>Aspect</th><th>Zookeeper Mode</th><th>KRaft Mode</th></tr>
+            <tr><td><strong>Architecture</strong></td><td>Separate ZK ensemble + Kafka cluster</td><td>Metadata quorum embedded in Kafka itself</td></tr>
+            <tr><td><strong>Ops complexity</strong></td><td>Two systems to monitor, patch, and scale</td><td>Single system; simpler runbooks</td></tr>
+            <tr><td><strong>Controller failover</strong></td><td>~30s for new controller election via ZK</td><td>&lt;1s via embedded Raft quorum</td></tr>
+            <tr><td><strong>Partition scalability</strong></td><td>~200K partitions practical limit</td><td>Millions of partitions supported</td></tr>
+            <tr><td><strong>Metadata storage</strong></td><td>ZK znodes (non-log-based)</td><td>Internal Raft log (consistent, replayable)</td></tr>
+            <tr><td><strong>Startup</strong></td><td>ZK must be up first</td><td>Single startup sequence</td></tr>
+          </table>
+          <div class="tip-box">For new deployments, always use KRaft. Kafka provides migration tooling (<code>kafka-storage.sh</code>) for in-place migration of existing ZK clusters.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">How would you size Kafka retention for this pipeline, and how does it interact with Spark's checkpoint?<span class="diff diff-hard">HARD</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p>Kafka retention must be long enough to cover the worst-case Spark downtime — the period between the last committed Spark offset and when the pipeline is restarted. If Kafka deletes data before Spark can re-read it, the pipeline will fail with an offset-out-of-range error.</p>
+          <p>A practical formula: <code>retention.ms = SLA for pipeline recovery × 2</code>. If your ops team guarantees a 24-hour incident response, set retention to 48 hours minimum. Add headroom for schema debugging or replay.</p>
+          <p>The Spark checkpoint stores the last committed Kafka offset. On restart, Spark issues a <code>seekToOffset</code> call for that offset. If the offset has been deleted from Kafka (past retention), Spark will either fail or skip to the earliest available offset — causing a data gap. Setting <code>failOnDataLoss=false</code> allows skipping, but silently loses data.</p>
+          <div class="warn-box">Set <code>failOnDataLoss=true</code> in production to get an explicit failure instead of silent data loss when offsets expire.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">What is a consumer group rebalance, and how does it affect a streaming Spark job?</span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p>A consumer group rebalance is triggered when a consumer joins or leaves the group, or when a partition is added. During rebalance, all partition assignments are revoked, a new assignment is computed by the group coordinator, and partitions are redistributed — causing a brief processing pause.</p>
+          <p>For Spark Structured Streaming, the Kafka connector handles rebalances internally per micro-batch: at the start of each batch it checks the current assignment and adjusts offset ranges accordingly. If a rebalance causes a batch to be long-running, it may appear as a latency spike in the Spark UI.</p>
+          <p>Mitigation: Use <code>assign</code> mode instead of <code>subscribe</code> in Spark's Kafka source when you have a fixed, known partition count — this bypasses the group coordinator entirely and avoids rebalances.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 4 ═══════════════════════════════ -->
+  <div class="section" id="spark">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(255,107,107,0.1);font-size:20px">🔥</div>
+      <div>
+        <div class="section-title" style="color:#ff8888">Spark Structured Streaming</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">Event time, watermarks, windows, mapGroupsWithState</div>
+      </div>
+      <span class="section-meta">7 questions</span>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">Explain event time vs processing time in this pipeline.<span class="diff diff-easy">EASY</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p><strong>Event time</strong> is the timestamp embedded in the Wikimedia event payload — the moment the edit actually occurred on Wikipedia. <strong>Processing time</strong> is when Spark reads and processes that event.</p>
+          <p>The gap between them is the <em>processing lag</em>: events published minutes ago, queued in Kafka, and read in the current micro-batch will have event times significantly behind processing time. Using event time windows correctly places those events in the window they belong to, not the window they arrived in.</p>
+          <table class="cmp-table">
+            <tr><th></th><th>Event Time</th><th>Processing Time</th></tr>
+            <tr><td><strong>Source</strong></td><td>Payload field (e.g., <code>meta.dt</code>)</td><td>Spark's system clock</td></tr>
+            <tr><td><strong>Late events</strong></td><td>Handled correctly via watermarks</td><td>Incorrectly placed in current window</td></tr>
+            <tr><td><strong>Reproducibility</strong></td><td>Reprocessing from Kafka gives same results</td><td>Reprocessing gives different results</td></tr>
+            <tr><td><strong>Use for</strong></td><td>Trending windows, spike detection</td><td>Throughput metrics, system monitoring</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">What does watermarking do, and what happens without it?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>A watermark is a threshold that tells Spark: "events more than X time behind the current max event time are considered too late and will be dropped." Spark advances the watermark as it sees newer event times, and uses it to trigger window finalizations and evict stale state.</p>
+          <p>Concretely: if Spark has seen events up to 10:00 PM and the watermark is 10 minutes, any event with a timestamp before 9:50 PM is dropped. Windows ending before 9:50 PM can be safely finalized and their state freed.</p>
+          <p><strong>Without watermarking:</strong> Spark must retain state for every active window indefinitely, because a late event could always arrive and update an old window. Over hours of operation, state accumulates without bound and the job runs out of memory or disk on the state store.</p>
+          <pre>// Example: 10-minute sliding window with 15-minute watermark
+df.withWatermark("eventTime", "15 minutes")
+  .groupBy(window(col("eventTime"), "10 minutes", "30 seconds"), col("title"))
+  .count()</pre>
+          <div class="tip-box">Set the watermark to be at least as large as your maximum expected event lateness. Too tight a watermark silently drops legitimate late events; too loose a watermark wastes memory retaining stale state.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">Why use sliding windows for trending articles and tumbling windows for spike detection?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p><strong>Sliding windows (10min duration / 30s slide)</strong> produce a continuously updated ranking. Every 30 seconds, a new window covering the last 10 minutes is emitted. Consecutive windows heavily overlap, so rankings change smoothly rather than jumping at fixed boundaries. This is ideal for "trending now" use cases where readers want a stable, continuously refreshed list.</p>
+          <p><strong>Tumbling windows (1min)</strong> produce non-overlapping, discrete snapshots. Each window is completely independent — there's no overlap with the previous window. This is ideal for spike detection: you compute the edit count for each discrete 1-minute bucket, compare it to a historical moving average, and flag any bucket that exceeds the threshold. The discrete boundaries make baseline computation clean and reproducible.</p>
+          <table class="cmp-table">
+            <tr><th></th><th>Sliding Window</th><th>Tumbling Window</th></tr>
+            <tr><td><strong>Overlap</strong></td><td>Yes — windows share events</td><td>No — each event in exactly one window</td></tr>
+            <tr><td><strong>State cost</strong></td><td>Higher (multiple open windows per event)</td><td>Lower (one open window per event)</td></tr>
+            <tr><td><strong>Output cadence</strong></td><td>Every slide interval (30s)</td><td>Every window duration (1min)</td></tr>
+            <tr><td><strong>Best for</strong></td><td>Trending rankings, smoothed metrics</td><td>Baseline comparison, anomaly detection</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">How does <code>mapGroupsWithState</code> work, and when would you use it over window aggregation?<span class="diff diff-hard">HARD</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p><code>mapGroupsWithState</code> gives you full, arbitrary control over per-key state in a streaming context. For each micro-batch, Spark groups incoming events by key, then calls your user-defined function with: (1) the current key, (2) an iterator of new events for that key in this batch, and (3) the current state object stored from previous batches. Your function updates the state and emits an output row.</p>
+          <p><strong>Use it when:</strong> you need running totals that span beyond a fixed window, custom state expiry logic, multi-event sequences (e.g., detecting a pattern across 3 consecutive edits), or when standard window aggregations don't map to your semantics (e.g., "active editors who edited in the last N minutes but haven't edited in the last 30 seconds").</p>
+          <p><strong>Compared to window aggregation:</strong> Window aggregations are simpler, automatically managed, and more efficiently optimized by Spark. Use <code>mapGroupsWithState</code> only when window semantics are genuinely insufficient — the added complexity is real.</p>
+          <pre>// Simplified ActiveEditors state function signature
+def updateEditorState(
+  userId: String,
+  events: Iterator[EditEvent],
+  state: GroupState[EditorState]
+): EditorSummary = {
+  if (state.hasTimedOut) {
+    state.remove()
+    return EditorSummary(userId, active = false)
+  }
+  val current = state.getOption.getOrElse(EditorState(0, 0L))
+  val newCount = current.editCount + events.size
+  state.update(EditorState(newCount, System.currentTimeMillis()))
+  state.setTimeoutDuration("10 minutes") // EventTimeTimeout or ProcessingTimeTimeout
+  EditorSummary(userId, active = true, editCount = newCount)
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">How do you reason about state size growth and cleanup?<span class="diff diff-hard">HARD</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>State size = <code>unique key cardinality × average state object size × retention window</code>. For the active editors tracker with 1 million distinct editors/day and a 1-hour retention, even a 64-byte state object per user means ~64 MB of state — manageable in memory but needs RocksDB for production reliability.</p>
+          <p>Four control mechanisms:</p>
+          <p><strong>Watermarks:</strong> For window aggregations, watermarks trigger state eviction for finalized windows. Without watermarks, windows accumulate indefinitely.</p>
+          <p><strong>State timeouts:</strong> In <code>mapGroupsWithState</code>, call <code>state.setTimeoutDuration()</code> to register a timeout. On the next batch after the timeout fires, your function is called with <code>state.hasTimedOut = true</code> — allowing you to emit a final value and remove the key from state.</p>
+          <p><strong>RocksDB state store:</strong> Replaces the default in-memory HashMap state store. RocksDB spills to disk, trading memory for I/O, enabling state 10–100× larger than available heap.</p>
+          <p><strong>Checkpoint cleanup:</strong> Old checkpoint files accumulate on HDFS/S3. Configure <code>spark.sql.streaming.minBatchesToRetain</code> and enable log cleanup to prevent runaway storage costs.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">What is the difference between <code>flatMapGroupsWithState</code> and <code>mapGroupsWithState</code>?<span class="diff diff-hard">HARD</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p>Both operators maintain arbitrary per-key state, but differ in output cardinality:</p>
+          <p><code>mapGroupsWithState</code> must emit exactly one output row per group per batch — even if the group received no new events (when handling timeouts). This constraint makes it easy to reason about output shape but less flexible for sparse events.</p>
+          <p><code>flatMapGroupsWithState</code> can emit zero, one, or many output rows per group per batch. This is the right choice when you want to emit nothing if a key has no update, or emit multiple events from a single key (e.g., pattern detection that emits an alert per matched pattern occurrence). It also supports the <code>Append</code> output mode, enabling downstream joins.</p>
+          <div class="tip-box">Prefer <code>mapGroupsWithState</code> for simpler logic (always one output). Use <code>flatMapGroupsWithState</code> when output cardinality is variable or you need Append mode compatibility.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">How does Spark Structured Streaming's trigger interval affect latency, throughput, and state store performance?</span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p>The trigger interval controls how frequently Spark kicks off a new micro-batch. The main trigger types are:</p>
+          <p><strong>Default (as fast as possible):</strong> New batch starts immediately after the previous one completes. Minimizes latency (~seconds) but maximizes overhead from frequent checkpoint commits and state store snapshots.</p>
+          <p><strong>ProcessingTime("30 seconds"):</strong> Batches fire on a fixed interval. If processing takes less than 30s, Spark idles until the next trigger. If processing takes more than 30s, the next batch starts immediately (no queuing). This reduces checkpoint overhead and gives predictable batch sizing.</p>
+          <p><strong>Continuous (experimental):</strong> Epoch-based processing targeting millisecond latency, bypassing the micro-batch model. State operations are limited.</p>
+          <p>For this pipeline, a 30-second trigger balances latency (acceptable for trending analytics) with reduced state store commit frequency. The state store takes a snapshot (RocksDB checkpoint) at the end of each batch — frequent batches means frequent snapshots, which can become the bottleneck on large state.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 5 ═══════════════════════════════ -->
+  <div class="section" id="stateful">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(108,99,255,0.1);font-size:20px">🗄️</div>
+      <div>
+        <div class="section-title" style="color:#a8a0ff">Stateful Processing</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">Timeouts, state design, debugging</div>
+      </div>
+      <span class="section-meta">5 questions</span>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">How does <code>EventTimeTimeout</code> differ from <code>ProcessingTimeTimeout</code>?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <table class="cmp-table">
+            <tr><th></th><th>EventTimeTimeout</th><th>ProcessingTimeTimeout</th></tr>
+            <tr><td><strong>Clock</strong></td><td>Watermark (event-time clock)</td><td>Wall clock (system time)</td></tr>
+            <tr><td><strong>Trigger condition</strong></td><td>Watermark passes the per-key timeout timestamp</td><td>Wall clock passes the per-key timeout timestamp</td></tr>
+            <tr><td><strong>Deterministic</strong></td><td>Yes — replaying data gives same timeout behavior</td><td>No — depends on real-world time</td></tr>
+            <tr><td><strong>Requires</strong></td><td>Watermark defined on the stream</td><td>No watermark needed</td></tr>
+            <tr><td><strong>Risk</strong></td><td>If event flow stalls, watermark freezes and timeouts never fire</td><td>Fires even with no data flow</td></tr>
+            <tr><td><strong>Use for</strong></td><td>Session windows, event-driven expiry</td><td>Heartbeat detection, "no events in N wall-clock minutes"</td></tr>
+          </table>
+          <p style="margin-top:12px">For the ActiveEditors use case: <code>EventTimeTimeout</code> is appropriate if you want "active editor = edited in last 10 event-time minutes." <code>ProcessingTimeTimeout</code> is better if you need "hasn't been seen in 10 real-world minutes, even if the stream is slow."</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">What is stored in the state for ActiveEditors and EditSpikeDetector?<span class="diff diff-easy">EASY</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p><strong>ActiveEditors state (per user ID):</strong></p>
+          <pre>case class EditorState(
+  editCount: Long,          // running total of edits this session
+  lastActivityTimestamp: Long, // epoch ms of most recent edit
+  firstSeenTimestamp: Long  // epoch ms of first edit in window
+)</pre>
+          <p>On each batch: increment <code>editCount</code>, update <code>lastActivityTimestamp</code>, reset timeout. On timeout: emit final summary row (userId, totalEdits, sessionDuration), remove state.</p>
+          <p><strong>EditSpikeDetector state (per article or global):</strong></p>
+          <pre>case class SpikeDetectorState(
+  recentWindowCounts: List[Long], // ring buffer of last N minute-bucket counts
+  movingAverage: Double,          // precomputed to avoid O(N) recalculation
+  lastUpdatedBucket: Long         // which 1-min bucket was last written
+)</pre>
+          <p>Each micro-batch updates the current bucket count, rotates the ring buffer, recomputes the moving average, and compares the current bucket to <code>movingAverage × spikeMultiplier</code>. If the ratio exceeds the threshold, a spike event is emitted.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">How would you debug a state blow-up or memory leak?<span class="diff diff-hard">HARD</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>State blow-ups typically present as: increasing batch duration, executor OOM kills, or growing checkpoint size. Debugging steps:</p>
+          <p><strong>1. Check cardinality:</strong> Add a metric that counts distinct state keys per batch. An unbounded increase indicates keys are never being evicted — check timeout logic and watermark advancement.</p>
+          <p><strong>2. Inspect watermark progress:</strong> In the Spark UI (Streaming tab), check if the eventTime watermark is advancing. A frozen watermark (e.g., due to a partition with no new data) prevents <code>EventTimeTimeout</code> from ever firing.</p>
+          <p><strong>3. Sample checkpoint files:</strong> Checkpoint state is stored as binary files in the configured checkpoint directory. Tools like <code>spark-shell</code> with the StateStore API can enumerate keys and values for inspection.</p>
+          <p><strong>4. Enable state store metrics:</strong> Set <code>spark.sql.streaming.stateStore.metrics.reportMaximumMemory=true</code> and watch <code>stateRows</code> and <code>memoryUsedBytes</code> in the Spark UI metrics.</p>
+          <p><strong>5. Switch to RocksDB:</strong> If state is legitimately large, move from the default in-memory store to RocksDB state store to push the problem from OOM to slower disk I/O, giving time to diagnose root cause.</p>
+          <div class="warn-box">A common root cause: using <code>ProcessingTimeTimeout</code> but the timeout duration is too long, allowing millions of keys to accumulate before any are evicted. Always profile state size during load testing before production deployment.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">If you needed to change the state schema (e.g., add a new field to EditorState), how would you handle the migration?<span class="diff diff-hard">HARD</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p>Changing the state schema is one of the most painful operations in stateful streaming. The checkpoint stores serialized state objects — if the schema changes incompatibly, Spark will throw a deserialization error on restart.</p>
+          <p><strong>Safe approach — additive changes with default values:</strong> Add the new field with a default value. Use a custom encoder (Kryo or Java serialization) rather than Spark's default encoder to allow versioned deserialization: check the record version field, deserialize old format records with defaults, serialize new records with the new format.</p>
+          <p><strong>Nuclear option — checkpoint wipe:</strong> Clear the checkpoint directory and restart the pipeline from the latest Kafka offset. State is lost — all in-progress sessions expire. Only acceptable if losing a few minutes of session state is tolerable.</p>
+          <p><strong>Blue/green migration:</strong> Run the new pipeline in parallel reading from the same Kafka topic, with a separate checkpoint directory. Let it build up fresh state over one full session window. Then cut over downstream consumers from the old Delta table to the new one.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">How would you implement exactly-once state updates when the output sink doesn't support idempotent writes?</span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p>Without an idempotent or transactional sink, the challenge is that a task can succeed in writing output but fail before committing the checkpoint — causing a replay that re-writes the same data.</p>
+          <p><strong>Option 1 — Upsert semantics:</strong> If the sink supports upserts (e.g., a database with <code>INSERT ... ON CONFLICT UPDATE</code>), use the batch ID + key as the deduplication key. Replayed writes update rather than insert, making them idempotent.</p>
+          <p><strong>Option 2 — Two-phase write:</strong> Write output to a staging table first, then atomically move it to the target table using a flag column or partition swap. On replay, overwrite the staging partition — the final move is safe to repeat.</p>
+          <p><strong>Option 3 — Foreachbatch with manual deduplication:</strong> Use <code>foreachBatch</code> to write output. Inside the function, first check if the batch ID was already written (stored in a metadata table), and skip if so. This adds one extra read per batch but gives correct semantics for any sink.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 6 ═══════════════════════════════ -->
+  <div class="section" id="delta">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(0,212,170,0.1);font-size:20px">💾</div>
+      <div>
+        <div class="section-title" style="color:#00d4aa">Delta Lake & Storage</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">ACID, transaction log, schema evolution, time travel</div>
+      </div>
+      <span class="section-meta">6 questions</span>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">Why use Delta Lake instead of plain Parquet?<span class="diff diff-easy">EASY</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <table class="cmp-table">
+            <tr><th>Feature</th><th>Plain Parquet</th><th>Delta Lake</th></tr>
+            <tr><td><strong>ACID transactions</strong></td><td>❌ No — concurrent writers corrupt data</td><td>✅ Optimistic concurrency control via transaction log</td></tr>
+            <tr><td><strong>Streaming writes</strong></td><td>❌ Race conditions with multiple micro-batches</td><td>✅ Atomic micro-batch commits with batch IDs</td></tr>
+            <tr><td><strong>Schema enforcement</strong></td><td>❌ Any schema silently written</td><td>✅ Write fails if schema incompatible</td></tr>
+            <tr><td><strong>Schema evolution</strong></td><td>Manual, error-prone</td><td><code>mergeSchema</code> / <code>overwriteSchema</code></td></tr>
+            <tr><td><strong>Time travel</strong></td><td>❌ Not possible</td><td>✅ Query any historical version by timestamp or version number</td></tr>
+            <tr><td><strong>Deletes / Updates</strong></td><td>Rewrite entire partition</td><td>Efficient merge, update, delete with change tracking</td></tr>
+            <tr><td><strong>Small file problem</strong></td><td>Accumulates without cleanup</td><td>Auto-optimize + <code>OPTIMIZE</code> command</td></tr>
+          </table>
+          <div class="tip-box">For streaming pipelines, Delta Lake's atomic batch commits are non-negotiable. The alternative (writing Parquet directly) requires complex external coordination to prevent partial reads.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">What guarantees does Delta provide for streaming writes?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>Delta Lake provides two critical guarantees for streaming writes:</p>
+          <p><strong>1. Atomic commits:</strong> Each Spark micro-batch writes data files and then atomically appends a commit entry to the Delta transaction log (<code>_delta_log/</code>). Readers either see the entire batch or none of it — there's no "partial batch" visible state.</p>
+          <p><strong>2. Idempotent batch commits:</strong> Each Spark micro-batch is assigned a monotonically increasing batch ID stored in the checkpoint. When Delta writes the commit, it embeds this batch ID. On replay after a crash, Spark attempts to re-commit the same batch ID. Delta detects the duplicate and skips the write — preventing duplicate records even if the crash happened after data files were written but before the commit completed.</p>
+          <pre>// Delta transaction log structure
+_delta_log/
+  00000000000000000000.json  ← batch 0 commit
+  00000000000000000001.json  ← batch 1 commit
+  00000000000000000010.checkpoint.parquet ← compacted checkpoint every 10 commits</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">How do checkpoints and Delta transaction logs work together?<span class="diff diff-hard">HARD</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>They serve complementary roles in crash recovery:</p>
+          <p><strong>Spark checkpoints</strong> track the <em>source state</em>: which Kafka offsets have been read, what in-memory streaming state (for stateful queries) has been accumulated, and what batch ID is next. This is Spark's "where to resume reading from."</p>
+          <p><strong>Delta transaction log</strong> tracks the <em>sink state</em>: which batch IDs have been committed to the Delta table, what data files exist, and what the current table schema is. This is Delta's "what has been written."</p>
+          <p>On crash recovery: Spark reads the checkpoint to determine the last committed Kafka offset and the next batch ID to process. It re-reads from Kafka starting at that offset and writes to Delta with that batch ID. Delta consults its log, sees the batch ID is new, and commits the data. The two systems converge on a consistent state without double-writing.</p>
+          <div class="warn-box">Checkpoint and Delta table paths must always be co-located in terms of lifecycle. Deleting the checkpoint without rolling back the Delta table (or vice versa) puts the pipeline in an inconsistent state.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">How do you handle schema evolution?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>Delta Lake provides three schema evolution modes:</p>
+          <p><strong><code>mergeSchema=true</code>:</strong> New columns in the write are added to the Delta table schema. Existing rows get <code>null</code> for the new column. Backward compatible — existing readers continue to work. Use for additive changes.</p>
+          <p><strong><code>overwriteSchema=true</code>:</strong> Completely replaces the Delta table's schema with the write schema. Existing data is invalidated from a schema perspective (though physically retained under time travel). Use only for full table rewrites.</p>
+          <p><strong>Schema enforcement (default):</strong> Any write whose schema doesn't match the existing table schema fails with an <code>AnalysisException</code>. This is the safest default — it forces explicit acknowledgment of schema changes.</p>
+          <p>For this pipeline: add <code>mergeSchema=true</code> as a streaming write option. Coordinate with upstream teams using a schema registry to gate promoted schema changes. Version downstream consumers to handle both old and new schemas during the transition window.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">How does Delta Lake's VACUUM command work, and what's the risk of running it aggressively?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p><code>VACUUM</code> permanently deletes data files that are no longer referenced by the current Delta table version and are older than the retention threshold (default 7 days). It reclaims storage from old versions, deleted records, and replaced files from <code>OPTIMIZE</code>.</p>
+          <p><strong>Risk of aggressive vacuuming:</strong> Delta's time travel queries (<code>VERSION AS OF</code>, <code>TIMESTAMP AS OF</code>) rely on the historical data files that <code>VACUUM</code> deletes. After <code>VACUUM</code>, you can no longer query table states older than the retention window. If your SLA for data recovery or audit trails exceeds your vacuum retention, you'll silently lose that capability.</p>
+          <p><strong>For streaming pipelines specifically:</strong> If your Spark checkpoint points to a Delta batch ID that references files deleted by <code>VACUUM</code>, crash recovery may fail. Always set <code>VACUUM</code> retention to at least 2× your maximum pipeline downtime window.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">What is the small file problem in Delta Lake and how do you solve it for a high-frequency streaming job?</span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p>Spark Structured Streaming writes one or more Parquet files per micro-batch per partition. A pipeline with a 30-second trigger and 8 output partitions generates 16+ files per minute — nearly 1,000 files per hour. Each file adds metadata overhead to the Delta transaction log and forces readers to open many small files, degrading scan performance.</p>
+          <p><strong>Solutions:</strong></p>
+          <p><strong>Auto-optimize (write-time):</strong> Enable <code>delta.autoOptimize.optimizeWrite=true</code> on the table. Delta coalesces output within each micro-batch to produce fewer, larger files. Adds slight latency to each batch but dramatically reduces file count.</p>
+          <p><strong>Auto-compact (post-write):</strong> Enable <code>delta.autoOptimize.autoCompact=true</code>. After each write, Delta checks if compaction is needed and runs <code>OPTIMIZE</code> asynchronously in the background.</p>
+          <p><strong>Scheduled OPTIMIZE + ZORDER:</strong> Run <code>OPTIMIZE table ZORDER BY (eventTime)</code> in a nightly maintenance job to compact small files and cluster data by query patterns for faster reads.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 7 ═══════════════════════════════ -->
+  <div class="section" id="exactlyonce">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(255,209,102,0.1);font-size:20px">✅</div>
+      <div>
+        <div class="section-title" style="color:#ffd166">Exactly-Once Semantics</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">End-to-end guarantees, crash recovery, driver failure</div>
+      </div>
+      <span class="section-meta">4 questions</span>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">Where is exactly-once guaranteed in this pipeline, and where isn't it?<span class="diff diff-hard">HARD</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <table class="cmp-table">
+            <tr><th>Boundary</th><th>Guarantee</th><th>Mechanism</th></tr>
+            <tr><td>SSE → Kafka</td><td>At-least-once</td><td>SSE reconnect may replay recent events; idempotent producer dedupes at Kafka</td></tr>
+            <tr><td>Kafka (durability)</td><td>At-least-once</td><td><code>acks=all</code> + ISR replication ensures no committed message is lost</td></tr>
+            <tr><td>Kafka → Spark</td><td>Exactly-once</td><td>Offset-based checkpoints; each offset range read precisely once per committed batch</td></tr>
+            <tr><td>Spark → Delta</td><td>Exactly-once</td><td>Atomic commits + idempotent batch IDs prevent duplicate writes</td></tr>
+            <tr><td>Delta → Downstream (read)</td><td>Exactly-once (with isolation)</td><td>Read-committed isolation; readers see only fully committed versions</td></tr>
+            <tr><td>Delta → Kafka consumer</td><td>At-least-once (external)</td><td>External consumers reading raw Kafka without Delta/checkpoint isolation have no end-to-end guarantee</td></tr>
+          </table>
+          <div class="tip-box">The pipeline achieves end-to-end exactly-once for the committed-to-Delta path. Any system that reads raw Kafka directly, or bypasses Delta's transaction log, steps outside this guarantee envelope.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">What happens on a driver crash mid-batch?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>A Spark driver crash mid-batch leaves the pipeline in one of two states:</p>
+          <p><strong>Scenario A — crash before Delta commit:</strong> Data files may have been written to the staging location but the transaction log commit was never made. On restart, Spark reprocesses the same Kafka offset range with the same batch ID. Delta writes the data files again (possibly overwriting the partial first attempt) and commits the transaction log entry. The result is a complete, exactly-once batch.</p>
+          <p><strong>Scenario B — crash after Delta commit but before checkpoint commit:</strong> Delta has the batch committed; Spark's checkpoint does not reflect this. On restart, Spark attempts to re-run the same batch ID. Delta detects the duplicate batch ID in its transaction log and skips the write. The checkpoint is then updated. No duplicates, no data loss.</p>
+          <p>This two-layer commit protocol (Delta first, checkpoint second) is precisely why the combination gives exactly-once semantics even in the face of arbitrary driver crashes.</p>
+          <pre>// Simplified recovery sequence
+1. Spark reads checkpoint → last batch ID = 42, last offset = {p0: 1000, p1: 950}
+2. Spark reads Kafka from those offsets → new events
+3. Spark writes data files to Delta staging
+4. Delta commits transaction log: batch 43 committed
+5. Spark writes checkpoint: batch 43, new offsets
+// If crash at step 4 before step 5: step 4 repeats on restart, Delta dedupes</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">How would you validate that your pipeline is truly delivering exactly-once, not just claiming it?<span class="diff diff-hard">HARD</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p>Claiming exactly-once is easy; proving it requires deliberate testing:</p>
+          <p><strong>1. Chaos testing:</strong> Write a test harness that kills the Spark driver at random points mid-batch (e.g., using SIGKILL). Restart it and verify: row counts match the expected number of Kafka messages consumed, no duplicate event IDs exist in Delta, and no events are missing between first and last produced Kafka offset.</p>
+          <p><strong>2. End-to-end count reconciliation:</strong> Embed a unique event counter in each SSE event (or use the Kafka offset as a unique ID). After pipeline completion, verify that every Kafka offset appears exactly once in the Delta table — no gaps, no duplicates.</p>
+          <p><strong>3. Delta history audit:</strong> Use <code>DESCRIBE HISTORY table</code> to inspect all committed transactions. Cross-reference batch IDs in the Delta log with Spark checkpoint batch IDs — they should form a contiguous, non-duplicated sequence.</p>
+          <p><strong>4. Duplicate detection query:</strong></p>
+          <pre>-- Check for duplicate event IDs in Delta
+SELECT event_id, COUNT(*) as cnt
+FROM delta.`/path/to/table`
+GROUP BY event_id
+HAVING cnt > 1</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">When would you deliberately choose at-least-once over exactly-once?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p>Exactly-once semantics come with real costs: higher latency (transaction overhead), reduced throughput (sync commit points), and operational complexity (managing transactional producers, compatible sinks). In several scenarios, at-least-once is the better engineering trade-off:</p>
+          <p><strong>1. Idempotent downstream processing:</strong> If your sink is a counter or aggregation (e.g., incrementing a page view count), duplicates cause overcounting. But if the sink is a set membership check, a duplicate is harmless. At-least-once with idempotent consumers can be simpler than full transactional exactly-once.</p>
+          <p><strong>2. Very high throughput, low latency requirements:</strong> At-<em>most</em>-once (never retry) and at-least-once (retry without dedup) pipelines can achieve sub-10ms end-to-end latency; transactional exactly-once adds 10–100ms of overhead per batch.</p>
+          <p><strong>3. Best-effort analytics:</strong> For dashboards where a ~0.01% duplicate rate is statistically invisible, the simplicity of at-least-once plus periodic reconciliation is far easier to operate than a full exactly-once stack.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ SECTION 8 ═══════════════════════════════ -->
+  <div class="section" id="ops">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(255,107,107,0.1);font-size:20px">🔧</div>
+      <div>
+        <div class="section-title" style="color:#ff8888">Operations, Monitoring & Code</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">Debugging, tuning, testing, observability</div>
+      </div>
+      <span class="section-meta">8 questions</span>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">How do you validate data is flowing end-to-end?<span class="diff diff-easy">EASY</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>A multi-layer validation approach catches issues at each stage:</p>
+          <p><strong>Kafka:</strong> Monitor consumer lag (<code>kafka-consumer-groups.sh --describe</code> or via Prometheus). Zero lag on the Spark consumer group means Spark is keeping up with the producer. Growing lag indicates Spark is falling behind or has stopped.</p>
+          <p><strong>Spark UI:</strong> Check the Streaming tab for active queries, input rows per second, batch duration, and processing rate. A healthy pipeline shows stable, bounded batch duration.</p>
+          <p><strong>Delta:</strong> Periodically query <code>SELECT COUNT(*), MAX(eventTime) FROM delta_table WHERE eventTime > current_timestamp() - INTERVAL 5 MINUTES</code>. A non-zero recent count confirms data is flowing.</p>
+          <p><strong>End-to-end heartbeat:</strong> Produce a synthetic "canary" event to the Wikimedia topic every minute with a known event ID. Assert it appears in Delta within 2× your expected batch latency. Alert if it doesn't.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">What would cause "no data" in Delta even though Kafka has messages?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>In order of likelihood:</p>
+          <p><strong>1. Filter dropping all events:</strong> The Spark query filters for <code>type == "edit"</code>. If the Wikimedia feed changes the event type field name, all events are dropped. Check: temporarily remove the filter and count raw events from Kafka.</p>
+          <p><strong>2. Schema parse failure:</strong> If <code>from_json</code> fails to parse an event (due to a schema mismatch), it returns <code>null</code> for all fields. A downstream <code>filter(isNotNull(...))</code> then drops the row silently. Check: add a count of null-field rows before the filter as a monitoring metric.</p>
+          <p><strong>3. Spark query not started / stuck:</strong> Check the Spark UI — is the streaming query in "ACTIVE" state? A stuck driver (e.g., awaiting a state store lock) will have no new batches despite Kafka lag growing.</p>
+          <p><strong>4. Mismatched topic / consumer group config:</strong> Verify <code>subscribe</code> topic name matches exactly (case-sensitive), and the consumer group ID matches what you expect. A new consumer group with <code>startingOffsets=latest</code> will miss all historical messages.</p>
+          <p><strong>5. Checkpoint corruption:</strong> If the checkpoint metadata is corrupted, Spark may fail to read the starting offset and silently start from <code>latest</code>, skipping all historical data. Force a checkpoint clear and restart to diagnose.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">How do you tune <code>spark.sql.shuffle.partitions</code> for local vs production?<span class="diff diff-easy">EASY</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>This parameter controls the number of partitions created after a shuffle (joins, aggregations). The default is 200, which is wildly oversized for local development and often undersized for large clusters.</p>
+          <p><strong>Local development:</strong> Set to 4–8 (near your CPU core count). With 200 shuffle partitions on a 4-core laptop, each micro-batch spawns 200 tiny tasks — the scheduler overhead often exceeds the actual compute time, making batches 5–10× slower than necessary.</p>
+          <p><strong>Production:</strong> Target 2–3 tasks per executor core at the expected shuffle data volume. Formula: <code>total_shuffle_data_GB × 1000 / target_partition_size_MB</code>. For a 10 GB shuffle on a 20-core cluster, target 200–400 partitions.</p>
+          <p><strong>Adaptive Query Execution (AQE):</strong> In Spark 3+, enable <code>spark.sql.adaptive.enabled=true</code>. AQE dynamically coalesces shuffle partitions based on actual data skew and size, reducing the need to manually tune this parameter.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">Why keep the Spark <code>StructType</code> schema next to the case class?<span class="diff diff-easy">EASY</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p>The <code>StructType</code> schema and the Scala case class are two representations of the same data contract. Keeping them in the same file (or companion object) has practical benefits:</p>
+          <p><strong>Single source of truth:</strong> A developer changing the case class immediately sees the schema definition. Without co-location, the schema can drift: the case class gains a field, the <code>StructType</code> is forgotten, and <code>from_json</code> silently drops the new field because it's not in the schema.</p>
+          <p><strong>Validation:</strong> In CI, add a test that derives a schema from the case class using <code>Encoders.product[CaseClass].schema</code> and asserts it matches the hand-written <code>StructType</code>. This catches drift automatically.</p>
+          <p><strong>Documentation:</strong> The co-located definitions serve as inline documentation for both the schema structure and the type-safe Scala representation that downstream code uses.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">What unit/integration tests would you write for this pipeline?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p><strong>Unit tests (fast, no Spark context):</strong></p>
+          <p>Schema parsing utilities: given a raw JSON string, assert it deserializes to the expected case class or produces a null for malformed input. Spike detector math: given a known ring buffer and current count, assert correct spike/no-spike decision.</p>
+          <p><strong>Micro-batch tests with MemoryStream (Spark in local mode):</strong></p>
+          <p>Feed synthetic events into a <code>MemoryStream[String]</code>, run one micro-batch, assert the output contains the expected rows. Test cases: window boundary behavior (event at exactly window edge), watermark dropping (late event outside watermark), state timeout (key removed after inactivity), spike detection trigger.</p>
+          <p><strong>Integration tests (embedded Kafka + Delta):</strong></p>
+          <p>Spin up an embedded Kafka cluster (e.g., using <code>kafka-streams-test-utils</code> or a Testcontainers Kafka image), produce synthetic events, run the full pipeline, assert Delta table row counts match expected values. Test crash recovery: kill the pipeline mid-batch, restart it, assert no duplicates.</p>
+          <pre>// MemoryStream test sketch
+val ms = MemoryStream[String](1, spark.sqlContext)
+ms.addData("""{"type":"edit","title":"Python","user":"alice"}""")
+val result = trendingQuery.processAllAvailable()
+assert(result.count() == 1)
+assert(result.first().getAs[String]("title") == "Python")</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label">Q</span>
+        <span class="q-text">How do you monitor lag and throughput?<span class="diff diff-med">MEDIUM</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">ANSWER</div>
+        <div class="a-text">
+          <p><strong>Kafka consumer lag:</strong> The most critical metric. Expose via JMX (<code>kafka.consumer:type=consumer-fetch-manager-metrics,records-lag-max</code>) and scrape with Prometheus. Alert when lag exceeds a threshold (e.g., 60 seconds of data at expected throughput). Use Kafka's own <code>kafka-consumer-groups.sh</code> for manual inspection.</p>
+          <p><strong>Spark Streaming metrics:</strong> Spark exposes per-query metrics via the Streaming Query Listener API. Key metrics: <code>inputRowsPerSecond</code>, <code>processedRowsPerSecond</code>, <code>batchDuration</code>, <code>stateOperators[*].numRowsUpdated</code>. Expose to Prometheus via the JMX exporter or Spark's built-in Prometheus sink (<code>spark.metrics.conf</code>).</p>
+          <p><strong>Delta write latency:</strong> Track the time between the event's <code>eventTime</code> and when it appears in the Delta table. A growing gap indicates end-to-end latency is increasing — useful for SLA monitoring.</p>
+          <p><strong>Grafana dashboard panels:</strong> Kafka lag (per partition), Spark batch duration P50/P99, input vs processed rows/sec, state store size over time, Delta table row growth rate.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">If batch duration keeps increasing over time, how would you diagnose and fix it?<span class="diff diff-hard">HARD</span></span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p>Increasing batch duration is a classic symptom of one of three root causes:</p>
+          <p><strong>1. Growing state store:</strong> More unique keys in <code>mapGroupsWithState</code> means more state to scan and checkpoint each batch. Diagnose with state row count metrics. Fix: tighten timeouts, use RocksDB state store, reduce key cardinality by bucketing (e.g., hourly buckets instead of per-minute).</p>
+          <p><strong>2. Small file accumulation in Delta:</strong> As the Delta table grows, each write triggers a transaction log scan that becomes slower. Diagnose with Delta <code>DESCRIBE HISTORY</code> — look at the number of files in recent commits. Fix: run <code>OPTIMIZE</code> + <code>VACUUM</code> to compact files, enable auto-optimize.</p>
+          <p><strong>3. Checkpoint I/O bottleneck:</strong> On object storage (S3/GCS), checkpoint writes can become slow as checkpoint directories accumulate thousands of files. Diagnose by timing the checkpoint write phase in Spark's task timeline. Fix: tune <code>spark.sql.streaming.minBatchesToRetain</code>, use a faster storage tier for checkpoints, or increase trigger interval to reduce checkpoint frequency.</p>
+          <div class="tip-box">Add a 30-day trailing chart of batch duration P99 to your Grafana dashboard. A slow upward trend (not visible day-to-day) often indicates state or file accumulation that will eventually cause a production incident.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-card followup" onclick="toggle(this)">
+      <div class="q-row">
+        <span class="q-label" style="color:var(--accent2);background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.2)">F/U</span>
+        <span class="q-text">How would you add a new analytics job without breaking existing ones?</span>
+        <span class="q-chevron">▼</span>
+      </div>
+      <div class="a-panel">
+        <div class="a-label">FOLLOW-UP ANSWER</div>
+        <div class="a-text">
+          <p>Safety comes from isolation at every layer:</p>
+          <p><strong>Separate checkpoint path:</strong> Each streaming query must have its own unique checkpoint directory. Sharing a checkpoint directory between two queries is unsupported and will corrupt state.</p>
+          <p><strong>Separate output path:</strong> Write to a new Delta table or a new partition scheme. Never write a new query's output to an existing table unless you've explicitly designed for multi-writer scenarios with Delta's concurrent write support.</p>
+          <p><strong>Schema-safe transformations:</strong> The new query can reference columns from the shared parsed DataFrame, but should not rename, drop, or change the type of columns that existing queries depend on. If structural changes are needed, create a new derived DataFrame.</p>
+          <p><strong>Resource isolation:</strong> New streaming queries consume additional executor cores and memory. On a shared cluster, validate that the new job's resource footprint doesn't starve existing jobs. Use Spark's Fair Scheduler pools to give each query a minimum resource allocation.</p>
+          <p><strong>Feature flags:</strong> Gate the new query behind a config flag so it can be quickly disabled in production if it introduces instability.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+</div>
+
+<footer>
+  <span style="color:var(--accent)">▶</span> &nbsp;
+  Stream Processing Interview Prep &nbsp;·&nbsp;
+  Kafka · Spark · Delta Lake &nbsp;·&nbsp;
+  <span style="color:var(--accent2)">50+ Q&amp;A</span>
+</footer>
+
+<script>
+  function toggle(card) {
+    card.classList.toggle('open');
+  }
+
+  function expandAll() {
+    document.querySelectorAll('.qa-card:not(.hidden)').forEach(c => c.classList.add('open'));
+  }
+
+  function collapseAll() {
+    document.querySelectorAll('.qa-card').forEach(c => c.classList.remove('open'));
+  }
+
+  let followupActive = false;
+  function filterFollowup() {
+    followupActive = !followupActive;
+    document.querySelectorAll('.qa-card').forEach(c => {
+      if (followupActive && !c.classList.contains('followup')) {
+        c.classList.add('hidden');
+      } else {
+        c.classList.remove('hidden');
+      }
+    });
+    updateCount();
+  }
+
+  function clearFilter() {
+    followupActive = false;
+    document.querySelectorAll('.qa-card').forEach(c => c.classList.remove('hidden'));
+    document.getElementById('searchInput').value = '';
+    updateCount();
+  }
+
+  function filterQA() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    document.querySelectorAll('.qa-card').forEach(c => {
+      const text = c.innerText.toLowerCase();
+      c.classList.toggle('hidden', q.length > 0 && !text.includes(q));
+    });
+    updateCount();
+  }
+
+  function updateCount() {
+    const visible = document.querySelectorAll('.qa-card:not(.hidden)').length;
+    const total = document.querySelectorAll('.qa-card').length;
+    const el = document.getElementById('resultsCount');
+    el.textContent = visible < total ? `${visible} / ${total} shown` : '';
+  }
+
+  // Sidebar nav active state
+  const sections = document.querySelectorAll('.section');
+  const navItems = document.querySelectorAll('.nav-item');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 120) current = s.id;
+    });
+    navItems.forEach(n => {
+      n.classList.toggle('active', n.getAttribute('onclick')?.includes(current));
+    });
+  });
+
+  function scrollTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+</script>
+</body>
+</html>
